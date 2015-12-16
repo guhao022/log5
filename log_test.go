@@ -1,14 +1,19 @@
 package log5
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_Console(t *testing.T) {
 	// 初始化
 	log := NewLog(1000)
 	// 设置输出引擎
-	log.SetEngine("console")
+	log.SetEngine("file", `{"spilt":"size", "filename":"logs/test.log"}`)
 	// 设置是否输出行号
 	log.SetFuncCall(true)
+
+	// 设置log级别
+	log.SetLevel(Warning)
 
 	log.Trac("Trac")
 	log.Info("Info")
@@ -16,16 +21,3 @@ func Test_Console(t *testing.T) {
 	log.Error("Error")
 	log.Fatal("Fatal")
 }
-
-func Benchmark_Console(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		// 初始化
-		log := NewLog(100)
-		// 设置输出引擎
-		log.SetEngine("console")
-
-		log.Trac("%d", i)
-
-	}
-}
-

@@ -13,7 +13,7 @@ func init() {
 	log.SetFlags(log.LstdFlags)
 }
 
-type Level uint
+type Level byte
 
 const (
 	Trace Level = iota
@@ -25,9 +25,10 @@ const (
 
 // log输出接口
 type LogEngine interface {
-	Init() error                         //初始化
+	Init(conf string) error              //初始化
 	Write(msg string, level Level) error //写入
 	Destroy()
+	Flush()
 }
 
 // log结构体
@@ -74,13 +75,19 @@ func NewLog(chanlen uint64) *Log {
 		output:        make(map[string]LogEngine),
 	}
 
-	l.SetEngine("console")
+	l.SetEngine("console", "")
 
 	return l
 }
 
+// 设置log等级
+func (l *Log) SetLevel(level Level) {
+	l.level = level
+}
+
 // 设置是否输出行号
 func (l *Log) SetFuncCall(bool) {
+
 	l.trackFuncCall = true
 }
 
@@ -90,16 +97,18 @@ func (l *Log) SetFuncCallDepth(depth int) {
 }
 
 // 设置输出引擎
-func (l *Log) SetEngine(engname string) error {
+func (l *Log) SetEngine(engname string, conf string) error {
+
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
 	//获取引擎
 	if log, ok := engines[engname]; ok {
 		lg := log()
-		err := lg.Init()
+		err := lg.Init(conf)
 		if err != nil {
 			errmsg := fmt.Errorf("SetEngine error: %s", err)
+			fmt.Println(errmsg)
 			return errmsg
 		}
 
@@ -112,7 +121,7 @@ func (l *Log) SetEngine(engname string) error {
 }
 
 // 初始化logMsg
-func (l *Log) newMsg(msg string ,level Level ) {
+func (l *Log) newMsg(msg string, level Level) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
@@ -137,6 +146,12 @@ func (l *Log) newMsg(msg string ,level Level ) {
 
 // 写入
 func (l *Log) write() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("The Logger's write() catch panic: %v\n", err)
+		}
+	}()
+
 	lm := <-l.msg
 	for name, e := range l.output {
 		err := e.Write(lm.msg, lm.level)
@@ -145,7 +160,6 @@ func (l *Log) write() {
 		}
 	}
 }
-
 
 // 获取调用的位置
 func (l *Log) getInvokerLocation() string {
@@ -172,7 +186,7 @@ func (l *Log) Trac(format string, v ...interface{}) {
 	if l.level > Trace {
 		return
 	}
-	msg := fmt.Sprintf("[TRAC] "+format, v...)
+	msg := fmt.Sprintf("[T] "+format, v...)
 	l.newMsg(msg, Trace)
 	l.write()
 }
@@ -182,7 +196,7 @@ func (l *Log) Info(format string, v ...interface{}) {
 	if l.level > Info {
 		return
 	}
-	msg := fmt.Sprintf("[INFO] "+format, v...)
+	msg := fmt.Sprintf("[I] "+format, v...)
 	l.newMsg(msg, Info)
 	l.write()
 }
@@ -192,7 +206,7 @@ func (l *Log) Warn(format string, v ...interface{}) {
 	if l.level > Warning {
 		return
 	}
-	msg := fmt.Sprintf("[WARN] "+format, v...)
+	msg := fmt.Sprintf("[W] "+format, v...)
 	l.newMsg(msg, Warning)
 	l.write()
 }
@@ -202,7 +216,7 @@ func (l *Log) Error(format string, v ...interface{}) {
 	if l.level > Error {
 		return
 	}
-	msg := fmt.Sprintf("[ERRO] "+format, v...)
+	msg := fmt.Sprintf("[E] "+format, v...)
 	l.newMsg(msg, Error)
 	l.write()
 }
@@ -212,7 +226,27 @@ func (l *Log) Fatal(format string, v ...interface{}) {
 	if l.level > Fatal {
 		return
 	}
-	msg := fmt.Sprintf("[FATA] "+format, v...)
+	msg := fmt.Sprintf("[F] "+format, v...)
 	l.newMsg(msg, Fatal)
 	l.write()
+}
+
+func (l *Log) Close() {
+	for {
+		if len(l.msg) > 0 {
+			bm := <-l.msg
+			for _, l := range l.output {
+				err := l.Write(bm.msg, bm.level)
+				if err != nil {
+					fmt.Println("ERROR, unable to WriteMsg (while closing logger):", err)
+				}
+			}
+			continue
+		}
+		break
+	}
+	for _, ls := range l.output {
+		ls.Flush()
+		ls.Destroy()
+	}
 }
