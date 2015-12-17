@@ -64,7 +64,7 @@ func Register(name string, log engineType) {
 }
 
 // 初始化log
-// adaptername -- 适配名称 为空(默认)console
+// output -- 适配名称 为空(默认)console
 // chanlen -- 缓存大小
 func NewLog(chanlen uint64) *Log {
 	l := &Log{
@@ -118,6 +118,20 @@ func (l *Log) SetEngine(engname string, conf string) error {
 	}
 
 	return nil
+}
+
+// 删除不希望使用的引擎
+func (l *Log) DelEngine(engname string) error {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	if lg, ok := l.output[engname]; ok {
+		lg.Destroy()
+		delete(l.output, engname)
+		return nil
+	} else {
+		return fmt.Errorf("unknown engine name %q (forgotten Register?)", engname)
+	}
 }
 
 // 初始化logMsg

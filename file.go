@@ -6,10 +6,10 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"sync"
 	"time"
-	"path/filepath"
 )
 
 type SplitType string
@@ -21,7 +21,7 @@ const (
 
 const (
 	DEFAULT_LEVEL     Level = Trace
-	DEFAULT_FILE_SIZE       = 30
+	DEFAULT_FILE_SIZE       = 50
 )
 
 type FileLog struct {
@@ -30,7 +30,7 @@ type FileLog struct {
 	FileName  string    `json:"filename"`
 	MaxSize   int64     `json:"maxsize"` //MB
 	SplitType SplitType `json:"split"`   //拆分方式,2种(1-天数,2-文件大小)
-	suffix    string    //后缀,方便分割log
+	fnum	int
 
 	date time.Time
 
@@ -57,7 +57,7 @@ func NewFile() LogEngine {
 		FileName:  "",
 		MaxSize:   DEFAULT_FILE_SIZE,
 		SplitType: SPLIT_TYPE_BY_SIZE,
-		suffix:    "",
+		fnum:    0,
 		date:      t,
 	}
 
@@ -93,69 +93,86 @@ func (l *FileLog) initLog() error {
 		l.mw.fd.Close()
 	}
 	l.mw.fd = fd
+	return nil
+}
 
+// 检测是否需要重新创建文件
+func (l *FileLog) docheck() {
 	// 判断log分割类型
 	switch l.SplitType {
 	case SPLIT_TYPE_BY_SIZE:
-		return l.splitbysize()
+		l.splitbysize()
 	case SPLIT_TYPE_BY_DAILY:
-		return l.splitbydaily()
+		l.splitbydaily()
 	default:
-		return l.splitbysize()
+		l.splitbysize()
 	}
 }
 
 // 按文件大小分割
-func (l *FileLog) splitbysize() error {
+func (l *FileLog) splitbysize() {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
 	// 检查文件大小
 	finfo, err := os.Stat(l.FileName)
 	if err != nil {
-		return fmt.Errorf("get %s stat err: %s\n", l.FileName, err)
+		fmt.Printf("get %s stat err: %s\n", l.FileName, err)
 	}
 
 	if finfo.Size() >= l.MaxSize<<10<<10 {
-		suffix, err := strconv.Atoi(l.suffix)
-		if err != nil {
-			suffix = 1
-		}
-		suffix += 1
-		l.FileName += "." + strconv.Itoa(suffix)
+		l.mw.mu.Lock()
+		defer l.mw.mu.Unlock()
+		// 关闭之前的fd
+		oldfd := l.mw.fd
+		oldfd.Close()
+
+		fmt.Printf("文件大小: %d----限制大小: %d\n", finfo.Size(), l.MaxSize<<10<<10)
+
+		l.fnum += 1
+		fname := l.FileName + "." + strconv.Itoa(l.fnum)
+		os.Rename(l.FileName, fname)
 		fd, err := l.createFile()
 		if err != nil {
-			return err
+			fmt.Printf("%s\n", err)
 		}
+
 		l.mw.fd = fd
 	}
-	return nil
 }
 
 // 按天数分割
-func (l *FileLog) splitbydaily() error {
+func (l *FileLog) splitbydaily() {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
 	t, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
 
 	if l.date.Before(t) {
-		l.suffix = time.Now().Format(time.RFC3339)
-		l.FileName += "." + l.suffix
+		l.mw.mu.Lock()
+		defer l.mw.mu.Unlock()
+		// 关闭之前的fd
+		oldfd := l.mw.fd
+		oldfd.Close()
+
+		fname := l.FileName + "." + time.Now().Format(time.RFC3339)
+		os.Rename(l.FileName, fname)
 		fd, err := l.createFile()
 		if err != nil {
-			return err
+			fmt.Printf("%s\n", err)
 		}
 		l.mw.fd = fd
 	}
 
-	return nil
+}
+
+// 重命名文件
+func (l *FileLog) rename() {
+
 }
 
 // 创建文件
 func (l *FileLog) createFile() (*os.File, error) {
-	l.lock.Lock()
-	defer l.lock.Unlock()
 
 	dir := filepath.Dir(l.FileName)
 
@@ -170,6 +187,14 @@ func (l *FileLog) createFile() (*os.File, error) {
 }
 
 func (l *FileLog) Write(msg string, level Level) error {
+	if level < l.Level {
+		return nil
+	}
+
+	l.docheck()
+
+	l.log.Println(msg)
+
 	return nil
 }
 
