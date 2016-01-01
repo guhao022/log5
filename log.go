@@ -195,7 +195,17 @@ func (l *Log) getInvokerLocation() string {
 }
 
 // Trace
-func (l *Log) Trac(format string, v ...interface{}) {
+func (l *Log) Trac(v ...interface{}) {
+	// 如果设置的级别比 trace 级别高,不输出
+	if l.level > Trace {
+		return
+	}
+	msg := fmt.Sprint("[T] "+ fmt.Sprintln(v...))
+	l.newMsg(msg, Trace)
+	l.write()
+}
+
+func (l *Log) Tracf(format string, v ...interface{}) {
 	// 如果设置的级别比 trace 级别高,不输出
 	if l.level > Trace {
 		return
@@ -206,7 +216,16 @@ func (l *Log) Trac(format string, v ...interface{}) {
 }
 
 // INFO
-func (l *Log) Info(format string, v ...interface{}) {
+func (l *Log) Info(v ...interface{}) {
+	if l.level > Info {
+		return
+	}
+	msg := fmt.Sprint("[I] " + fmt.Sprintln(v...))
+	l.newMsg(msg, Info)
+	l.write()
+}
+
+func (l *Log) Infof(format string, v ...interface{}) {
 	if l.level > Info {
 		return
 	}
@@ -216,7 +235,16 @@ func (l *Log) Info(format string, v ...interface{}) {
 }
 
 //WARNING
-func (l *Log) Warn(format string, v ...interface{}) {
+func (l *Log) Warn(v ...interface{}) {
+	if l.level > Warning {
+		return
+	}
+	msg := fmt.Sprint("[W] " + fmt.Sprintln(v...))
+	l.newMsg(msg, Warning)
+	l.write()
+}
+
+func (l *Log) Warnf(format string, v ...interface{}) {
 	if l.level > Warning {
 		return
 	}
@@ -226,7 +254,16 @@ func (l *Log) Warn(format string, v ...interface{}) {
 }
 
 // ERROR
-func (l *Log) Error(format string, v ...interface{}) {
+func (l *Log) Error(v ...interface{}) {
+	if l.level > Error {
+		return
+	}
+	msg := fmt.Sprint("[E] " + fmt.Sprintln(v...))
+	l.newMsg(msg, Error)
+	l.write()
+}
+
+func (l *Log) Errorf(format string, v ...interface{}) {
 	if l.level > Error {
 		return
 	}
@@ -236,7 +273,16 @@ func (l *Log) Error(format string, v ...interface{}) {
 }
 
 // FATAL
-func (l *Log) Fatal(format string, v ...interface{}) {
+func (l *Log) Fatal(v ...interface{}) {
+	if l.level > Fatal {
+		return
+	}
+	msg := fmt.Sprintf("[F] " + fmt.Sprintln(v...))
+	l.newMsg(msg, Fatal)
+	l.write()
+}
+
+func (l *Log) Fatalf(format string, v ...interface{}) {
 	if l.level > Fatal {
 		return
 	}
