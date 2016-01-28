@@ -85,15 +85,15 @@ func (l *Log) SetLevel(lstr string) {
 	var level Level
 
 	switch lstr {
-	case "T" || "Trace" || "trace" || "TRACE" || "trac" || "Trac" || "TRAC" :
+	case "T", "Trace", "trace", "TRACE", "trac", "Trac", "TRAC" :
 		level = Trace
-	case "I" || "Info" || "info" || "INFO" :
+	case "I", "Info", "info", "INFO" :
 		level = Info
-	case "W" || "Warning" || "warning" || "WARNING" || "Warn" || "warn" || "WARN" :
+	case "W", "Warning", "warning", "WARNING", "Warn", "warn", "WARN" :
 		level = Warning
-	case "E" || "Error" || "error" || "ERROR" :
+	case "E", "Error", "error", "ERROR" :
 		level = Error
-	case "F" || "Fatal" || "fatal" || "FATAL" :
+	case "F", "Fatal", "fatal", "FATAL" :
 		level = Fatal
 	default:
 		level = Trace
