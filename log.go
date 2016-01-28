@@ -95,6 +95,7 @@ func (l *Log) SetLevel(lstr string) {
 		level = Error
 	case "F", "Fatal", "fatal", "FATAL" :
 		level = Fatal
+	case "":
 	default:
 		level = Trace
 	}

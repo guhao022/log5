@@ -21,7 +21,7 @@ const (
 
 const (
 	DEFAULT_LEVEL     Level = Trace
-	DEFAULT_FILE_SIZE       = 50
+	DEFAULT_FILE_SIZE       = 30
 )
 
 type FileLog struct {
@@ -79,6 +79,10 @@ func (l *FileLog) Init(conf string) error {
 	if len(l.FileName) == 0 {
 		name := path.Join("log", "log"+".log")
 		l.FileName = name
+	}
+
+	if l.MaxSize == 0 {
+		l.MaxSize = 30
 	}
 
 	return l.initLog()
