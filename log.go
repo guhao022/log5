@@ -81,7 +81,7 @@ func NewLog(chanlen uint64) *Log {
 }
 
 // 设置log等级
-func (l *Log) SetLevel(lstr string) {
+func (l *Log) SetLevel(lstr string) *Log {
 	var level Level
 
 	switch lstr {
@@ -100,21 +100,27 @@ func (l *Log) SetLevel(lstr string) {
 		level = Trace
 	}
 	l.level = level
+
+	return l
 }
 
 // 设置是否输出行号
-func (l *Log) SetFuncCall(bool) {
+func (l *Log) SetFuncCall(bool) *Log {
 
 	l.trackFuncCall = true
+
+	return l
 }
 
 // 设置是否输出行号
-func (l *Log) SetFuncCallDepth(depth int) {
+func (l *Log) SetFuncCallDepth(depth int) *Log {
 	l.funcCallDepth = depth
+
+	return l
 }
 
 // 设置输出引擎
-func (l *Log) SetEngine(engname string, conf string) error {
+func (l *Log) SetEngine(engname string, conf string) *Log {
 
 	l.lock.Lock()
 	defer l.lock.Unlock()
@@ -126,15 +132,16 @@ func (l *Log) SetEngine(engname string, conf string) error {
 		if err != nil {
 			errmsg := fmt.Errorf("SetEngine error: %s", err)
 			fmt.Println(errmsg)
-			return errmsg
+			return nil
 		}
 
 		l.output[engname] = lg
 	} else {
-		return fmt.Errorf("unknown Enginee %q ", engname)
+		fmt.Printf("unknown Enginee %q ", engname)
+		return nil
 	}
 
-	return nil
+	return l
 }
 
 // 删除不希望使用的引擎
