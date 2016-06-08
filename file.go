@@ -28,7 +28,7 @@ type FileLog struct {
 	log       *log.Logger
 	Level     Level     `json:"level"`
 	FileName  string    `json:"filename"`
-	MaxSize   int64     `json:"maxsize"` //MB
+	MaxSize   int       `json:"maxsize"` //MB
 	SplitType SplitType `json:"split"`   //拆分方式,2种(1-天数,2-文件大小)
 	fnum	int
 
