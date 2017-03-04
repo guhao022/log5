@@ -224,7 +224,7 @@ func (l *Log) Trac(v ...interface{}) {
 	if l.level > Trace {
 		return
 	}
-	msg := fmt.Sprint("[T] "+ fmt.Sprintln(v...))
+	msg := fmt.Sprint("[TRAC] "+ fmt.Sprintln(v...))
 	l.newMsg(msg, Trace)
 	l.write()
 }
@@ -234,7 +234,7 @@ func (l *Log) Tracf(format string, v ...interface{}) {
 	if l.level > Trace {
 		return
 	}
-	msg := fmt.Sprintf("[T] "+format, v...)
+	msg := fmt.Sprintf("[TRAC] "+format, v...)
 	l.newMsg(msg, Trace)
 	l.write()
 }
@@ -244,7 +244,7 @@ func (l *Log) Info(v ...interface{}) {
 	if l.level > Info {
 		return
 	}
-	msg := fmt.Sprint("[I] " + fmt.Sprintln(v...))
+	msg := fmt.Sprint("[INFO] " + fmt.Sprintln(v...))
 	l.newMsg(msg, Info)
 	l.write()
 }
@@ -253,7 +253,7 @@ func (l *Log) Infof(format string, v ...interface{}) {
 	if l.level > Info {
 		return
 	}
-	msg := fmt.Sprintf("[I] "+format, v...)
+	msg := fmt.Sprintf("[INFO] "+format, v...)
 	l.newMsg(msg, Info)
 	l.write()
 }
@@ -263,7 +263,7 @@ func (l *Log) Warn(v ...interface{}) {
 	if l.level > Warning {
 		return
 	}
-	msg := fmt.Sprint("[W] " + fmt.Sprintln(v...))
+	msg := fmt.Sprint("[WARN] " + fmt.Sprintln(v...))
 	l.newMsg(msg, Warning)
 	l.write()
 }
@@ -272,7 +272,7 @@ func (l *Log) Warnf(format string, v ...interface{}) {
 	if l.level > Warning {
 		return
 	}
-	msg := fmt.Sprintf("[W] "+format, v...)
+	msg := fmt.Sprintf("[WARN] "+format, v...)
 	l.newMsg(msg, Warning)
 	l.write()
 }
@@ -282,7 +282,7 @@ func (l *Log) Error(v ...interface{}) {
 	if l.level > Error {
 		return
 	}
-	msg := fmt.Sprint("[E] " + fmt.Sprintln(v...))
+	msg := fmt.Sprint("[ERRO] " + fmt.Sprintln(v...))
 	l.newMsg(msg, Error)
 	l.write()
 }
@@ -291,7 +291,7 @@ func (l *Log) Errorf(format string, v ...interface{}) {
 	if l.level > Error {
 		return
 	}
-	msg := fmt.Sprintf("[E] "+format, v...)
+	msg := fmt.Sprintf("[ERRO] "+format, v...)
 	l.newMsg(msg, Error)
 	l.write()
 }
@@ -301,7 +301,7 @@ func (l *Log) Fatal(v ...interface{}) {
 	if l.level > Fatal {
 		return
 	}
-	msg := fmt.Sprintf("[F] " + fmt.Sprintln(v...))
+	msg := fmt.Sprintf("[FATA] " + fmt.Sprintln(v...))
 	l.newMsg(msg, Fatal)
 	l.write()
 }
@@ -310,7 +310,7 @@ func (l *Log) Fatalf(format string, v ...interface{}) {
 	if l.level > Fatal {
 		return
 	}
-	msg := fmt.Sprintf("[F] "+format, v...)
+	msg := fmt.Sprintf("[FATA] "+format, v...)
 	l.newMsg(msg, Fatal)
 	l.write()
 }
