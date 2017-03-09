@@ -21,6 +21,7 @@ var colors = map[Level]Brush{
 	Trace:   NewBrush("1;32"), // Trace      cyan
 	Info:    NewBrush("1;34"), // Info		blue
 	Warning: NewBrush("1;33"), // Warning    yellow
+	Debug:   NewBrush("1;36"), // Debug    
 	Error:   NewBrush("1;31"), // Error      red
 	Fatal:   NewBrush("1;37"), // Fatal		white
 
