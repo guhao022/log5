@@ -4,7 +4,7 @@ go语言log的扩展
 
 ### 安装
 ```bash
-go get github.com/num5/log5
+go get github.com/num5/loger
 
 ```
 
