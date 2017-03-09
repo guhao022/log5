@@ -69,7 +69,7 @@ func Register(name string, log engineType) {
 // chanlen -- 缓存大小
 func NewLog(chanlen uint64) *Log {
 	l := &Log{
-		level:         Trace,
+		level:         Debug,
 		trackFuncCall: false,
 		funcCallDepth: 2,
 		msg:           make(chan *logMsg, chanlen),
@@ -86,13 +86,13 @@ func (l *Log) SetLevel(lstr string) *Log {
 	var level Level
 
 	switch lstr {
+	case "D", "Debug", "debug" :
+		level = Debug
 	case "T", "Trace", "trace", "TRACE", "trac", "Trac", "TRAC" :
 		level = Trace
 	case "I", "Info", "info", "INFO" :
 		level = Info
 	case "W", "Warning", "warning", "WARNING", "Warn", "warn", "WARN" :
-		level = Warning
-	case "D", "Debug", "debug" :
 		level = Warning
 	case "E", "Error", "error", "ERROR" :
 		level = Error
@@ -100,7 +100,7 @@ func (l *Log) SetLevel(lstr string) *Log {
 		level = Fatal
 	case "":
 	default:
-		level = Trace
+		level = Debug
 	}
 	l.level = level
 
@@ -221,6 +221,25 @@ func (l *Log) getInvokerLocation() string {
 	return fmt.Sprintf("%s : [%s:%d]", funcPath, fname, line)
 }
 
+// DEBUG
+func (l *Log) Debug(v ...interface{}) {
+	if l.level > Debug {
+		return
+	}
+	msg := fmt.Sprint("[DEBUG] " + fmt.Sprintln(v...))
+	l.newMsg(msg, Debug)
+	l.write()
+}
+
+func (l *Log) Debugf(format string, v ...interface{}) {
+	if l.level > Debug {
+		return
+	}
+	msg := fmt.Sprintf("[DEBUG] "+format, v...)
+	l.newMsg(msg, Debug)
+	l.write()
+}
+
 // Trace
 func (l *Log) Trac(v ...interface{}) {
 	// 如果设置的级别比 trace 级别高,不输出
@@ -276,25 +295,6 @@ func (l *Log) Warnf(format string, v ...interface{}) {
 		return
 	}
 	msg := fmt.Sprintf("[WARN] "+format, v...)
-	l.newMsg(msg, Warning)
-	l.write()
-}
-
-// DEBUG
-func (l *Log) Debug(v ...interface{}) {
-	if l.level > Warning {
-		return
-	}
-	msg := fmt.Sprint("[DEBUG] " + fmt.Sprintln(v...))
-	l.newMsg(msg, Warning)
-	l.write()
-}
-
-func (l *Log) Debugf(format string, v ...interface{}) {
-	if l.level > Warning {
-		return
-	}
-	msg := fmt.Sprintf("[DEBUG] "+format, v...)
 	l.newMsg(msg, Warning)
 	l.write()
 }
