@@ -19,6 +19,7 @@ const (
 	Trace Level = iota
 	Info
 	Warning
+	Debug
 	Error
 	Fatal
 )
@@ -90,6 +91,8 @@ func (l *Log) SetLevel(lstr string) *Log {
 	case "I", "Info", "info", "INFO" :
 		level = Info
 	case "W", "Warning", "warning", "WARNING", "Warn", "warn", "WARN" :
+		level = Warning
+	case "D", "Debug", "debug" :
 		level = Warning
 	case "E", "Error", "error", "ERROR" :
 		level = Error
@@ -273,6 +276,25 @@ func (l *Log) Warnf(format string, v ...interface{}) {
 		return
 	}
 	msg := fmt.Sprintf("[WARN] "+format, v...)
+	l.newMsg(msg, Warning)
+	l.write()
+}
+
+// DEBUG
+func (l *Log) Debug(v ...interface{}) {
+	if l.level > Warning {
+		return
+	}
+	msg := fmt.Sprint("[DEBUG] " + fmt.Sprintln(v...))
+	l.newMsg(msg, Warning)
+	l.write()
+}
+
+func (l *Log) Debugf(format string, v ...interface{}) {
+	if l.level > Warning {
+		return
+	}
+	msg := fmt.Sprintf("[DEBUG] "+format, v...)
 	l.newMsg(msg, Warning)
 	l.write()
 }
