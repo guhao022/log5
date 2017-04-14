@@ -16,7 +16,7 @@ func init() {
 type Level byte
 
 const (
-	Debug Level = iota
+	Debug Level = iota + 1
 	Trace
 	Info
 	Warning
