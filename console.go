@@ -36,7 +36,7 @@ type ConsoleLog struct {
 func NewConsole() LogEngine {
 	return &ConsoleLog{
 		log:   log.New(os.Stdout, "", log.Ldate|log.Ltime),
-		level: Trace,
+		level: Debug,
 	}
 }
 
