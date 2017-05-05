@@ -16,12 +16,12 @@ func init() {
 type Level byte
 
 const (
-	Debug Level = iota + 1
-	Trace
-	Info
-	Warning
-	Error
-	Fatal
+	DEBUG Level = iota + 1
+	TRACE
+	INFO
+	WARNING
+	ERROR
+	FATAL
 )
 
 // log输出接口
@@ -69,7 +69,7 @@ func Register(name string, log engineType) {
 // chanlen -- 缓存大小
 func NewLog(chanlen uint64) *Log {
 	l := &Log{
-		level:         Debug,
+		level:         DEBUG,
 		trackFuncCall: false,
 		funcCallDepth: 2,
 		msg:           make(chan *logMsg, chanlen),
@@ -87,20 +87,20 @@ func (l *Log) SetLevel(lstr string) *Log {
 
 	switch lstr {
 	case "D", "Debug", "debug" :
-		level = Debug
+		level = DEBUG
 	case "T", "Trace", "trace", "TRACE", "trac", "Trac", "TRAC" :
-		level = Trace
+		level = TRACE
 	case "I", "Info", "info", "INFO" :
-		level = Info
+		level = INFO
 	case "W", "Warning", "warning", "WARNING", "Warn", "warn", "WARN" :
-		level = Warning
+		level = WARNING
 	case "E", "Error", "error", "ERROR" :
-		level = Error
+		level = ERROR
 	case "F", "Fatal", "fatal", "FATAL" :
-		level = Fatal
+		level = FATAL
 	case "":
 	default:
-		level = Debug
+		level = DEBUG
 	}
 	l.level = level
 
@@ -223,117 +223,117 @@ func (l *Log) getInvokerLocation() string {
 
 // DEBUG
 func (l *Log) Debug(v ...interface{}) {
-	if l.level > Debug {
+	if l.level > DEBUG {
 		return
 	}
 	msg := fmt.Sprint("[DEBUG] " + fmt.Sprintln(v...))
-	l.newMsg(msg, Debug)
+	l.newMsg(msg, DEBUG)
 	l.write()
 }
 
 func (l *Log) Debugf(format string, v ...interface{}) {
-	if l.level > Debug {
+	if l.level > DEBUG {
 		return
 	}
 	msg := fmt.Sprintf("[DEBUG] "+format, v...)
-	l.newMsg(msg, Debug)
+	l.newMsg(msg, DEBUG)
 	l.write()
 }
 
 // Trace
 func (l *Log) Trac(v ...interface{}) {
 	// 如果设置的级别比 trace 级别高,不输出
-	if l.level > Trace {
+	if l.level > TRACE {
 		return
 	}
 	msg := fmt.Sprint("[TRAC] "+ fmt.Sprintln(v...))
-	l.newMsg(msg, Trace)
+	l.newMsg(msg, TRACE)
 	l.write()
 }
 
 func (l *Log) Tracf(format string, v ...interface{}) {
 	// 如果设置的级别比 trace 级别高,不输出
-	if l.level > Trace {
+	if l.level > TRACE {
 		return
 	}
 	msg := fmt.Sprintf("[TRAC] "+format, v...)
-	l.newMsg(msg, Trace)
+	l.newMsg(msg, TRACE)
 	l.write()
 }
 
 // INFO
 func (l *Log) Info(v ...interface{}) {
-	if l.level > Info {
+	if l.level > INFO {
 		return
 	}
 	msg := fmt.Sprint("[INFO] " + fmt.Sprintln(v...))
-	l.newMsg(msg, Info)
+	l.newMsg(msg, INFO)
 	l.write()
 }
 
 func (l *Log) Infof(format string, v ...interface{}) {
-	if l.level > Info {
+	if l.level > INFO {
 		return
 	}
 	msg := fmt.Sprintf("[INFO] "+format, v...)
-	l.newMsg(msg, Info)
+	l.newMsg(msg, INFO)
 	l.write()
 }
 
 //WARNING
 func (l *Log) Warn(v ...interface{}) {
-	if l.level > Warning {
+	if l.level > WARNING {
 		return
 	}
 	msg := fmt.Sprint("[WARN] " + fmt.Sprintln(v...))
-	l.newMsg(msg, Warning)
+	l.newMsg(msg, WARNING)
 	l.write()
 }
 
 func (l *Log) Warnf(format string, v ...interface{}) {
-	if l.level > Warning {
+	if l.level > WARNING {
 		return
 	}
 	msg := fmt.Sprintf("[WARN] "+format, v...)
-	l.newMsg(msg, Warning)
+	l.newMsg(msg, WARNING)
 	l.write()
 }
 
 // ERROR
 func (l *Log) Error(v ...interface{}) {
-	if l.level > Error {
+	if l.level > ERROR {
 		return
 	}
 	msg := fmt.Sprint("[ERRO] " + fmt.Sprintln(v...))
-	l.newMsg(msg, Error)
+	l.newMsg(msg, ERROR)
 	l.write()
 }
 
 func (l *Log) Errorf(format string, v ...interface{}) {
-	if l.level > Error {
+	if l.level > ERROR {
 		return
 	}
 	msg := fmt.Sprintf("[ERRO] "+format, v...)
-	l.newMsg(msg, Error)
+	l.newMsg(msg, ERROR)
 	l.write()
 }
 
 // FATAL
 func (l *Log) Fatal(v ...interface{}) {
-	if l.level > Fatal {
+	if l.level > FATAL {
 		return
 	}
 	msg := fmt.Sprintf("[FATA] " + fmt.Sprintln(v...))
-	l.newMsg(msg, Fatal)
+	l.newMsg(msg, FATAL)
 	l.write()
 }
 
 func (l *Log) Fatalf(format string, v ...interface{}) {
-	if l.level > Fatal {
+	if l.level > FATAL {
 		return
 	}
 	msg := fmt.Sprintf("[FATA] "+format, v...)
-	l.newMsg(msg, Fatal)
+	l.newMsg(msg, FATAL)
 	l.write()
 }
 
