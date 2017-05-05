@@ -20,7 +20,7 @@ const (
 )
 
 const (
-	DEFAULT_LEVEL     Level = Trace
+	DEFAULT_LEVEL     Level = TRACE
 	DEFAULT_FILE_SIZE       = 30
 )
 
